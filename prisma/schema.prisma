@@ -8,12 +8,15 @@ datasource db {
 }
 
 model Post {
-  id        Int     @id @default(autoincrement())
+  id        Int       @id @default(autoincrement())
   title     String
   content   String?
-  published Boolean @default(false)
-  author    User?   @relation(fields: [authorId], references: [id])
+  published Boolean   @default(false)
+  author    User?     @relation(fields: [authorId], references: [id])
   authorId  Int?
+  comments  Comment[]
+  Tags      Tag[]     @relation("TagToPost")
+  tagId     Int?
 }
 
 model Account {
@@ -59,6 +62,7 @@ model User {
   posts         Post[]
   accounts      Account[]
   sessions      Session[]
+  Comment       Comment[]
 
   @@map(name: "users")
 }
@@ -70,4 +74,20 @@ model VerificationToken {
 
   @@unique([identifier, token])
   @@map("verificationtokens")
+}
+
+model Comment {
+  id          Int      @id @default(autoincrement())
+  createdAt   DateTime @default(now())
+  comment     String
+  writtenById Int
+  postId      Int
+  writtenBy   User     @relation(fields: [writtenById], references: [id])
+  post        Post     @relation(fields: [postId], references: [id], onUpdate: NoAction)
+}
+
+model Tag {
+  id   Int    @id @default(autoincrement())
+  tag  String @unique
+  post Post[] @relation("TagToPost")
 }

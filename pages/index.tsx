@@ -1,8 +1,9 @@
-import React from "react";
-import { GetStaticProps } from "next";
-import Layout from "../components/Layout";
-import Post, { PostProps } from "../components/Post";
+import React from 'react'
+import { GetStaticProps } from 'next'
+import Layout from '../components/Layout'
+import Post, { PostProps } from '../components/Post'
 import prisma from '../lib/prisma'
+import { Box, Flex, SimpleGrid } from '@chakra-ui/react'
 
 export const getStaticProps: GetStaticProps = async () => {
   const feed = await prisma.post.findMany({
@@ -13,48 +14,44 @@ export const getStaticProps: GetStaticProps = async () => {
       author: {
         select: {
           name: true,
+          email: true,
         },
       },
     },
-  });
+  })
   return {
     props: { feed },
-  };
-};
+  }
+}
 
 type Props = {
-  feed: PostProps[];
-};
+  feed: PostProps[]
+}
 
-const Blog: React.FC<Props> = (props) => {
+const Blog: React.FC<Props> = props => {
   return (
-    <Layout>
-      <div className="page">
-        <h1>Public Feed</h1>
-        <main>
-          {props.feed.map((post) => (
-            <div key={post.id} className="post">
-              <Post post={post} />
-            </div>
-          ))}
-        </main>
-      </div>
-      <style jsx>{`
-        .post {
-          background: white;
-          transition: box-shadow 0.1s ease-in;
-        }
+    <>
+      <Layout>
+        <Box>
+          <div className='page'>
+            <h1>Public Feed</h1>
+            <SimpleGrid
+              columns={[1, 2, 3]}
+              spacing={8}
+              px={4}
+              py={2}
+              borderBottomWidth='1px'
+              borderBottomColor='gray.200'
+              borderBottomStyle='solid'>
+              {props.feed.map(post => (
+                <Post key={post.id} post={post} />
+              ))}
+            </SimpleGrid>
+          </div>
+        </Box>
+      </Layout>
+    </>
+  )
+}
 
-        .post:hover {
-          box-shadow: 1px 1px 3px #aaa;
-        }
-
-        .post + .post {
-          margin-top: 2rem;
-        }
-      `}</style>
-    </Layout>
-  );
-};
-
-export default Blog;
+export default Blog

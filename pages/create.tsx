@@ -9,15 +9,8 @@ const Draft: React.FC = () => {
   const [addPost] = useAddPostMutation()
   const submitData = async (e: React.SyntheticEvent) => {
     e.preventDefault()
-
-    try {
-      const body = { title, content }
-      await addPost({ title, content })
-
-      await Router.push('/drafts')
-    } catch (error) {
-      console.error(error)
-    }
+    await addPost({ title, content })
+    await Router.push('/drafts')
   }
 
   return (

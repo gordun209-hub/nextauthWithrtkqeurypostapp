@@ -4,44 +4,44 @@ const prisma = new PrismaClient()
 
 const userData: Prisma.UserCreateInput[] = [
   {
-    name: 'Alice',
-    email: 'alice@prisma.io',
+    name: 'Tefikk',
+    email: 'tefikk.haciosmanolu.com',
     posts: {
       create: [
         {
-          title: 'Join the Prisma Slack',
-          content: 'https://slack.prisma.io',
+          title: 'selamn alekm',
+          content: 'wpcardrip10h',
           published: true,
         },
       ],
     },
   },
   {
-    name: 'Nilu',
-    email: 'nilu@prisma.io',
+    name: 'furkn',
+    email: 'furknSlakkoc.cok',
     posts: {
       create: [
         {
-          title: 'Follow Prisma on Twitter',
-          content: 'https://www.twitter.com/prisma',
+          title: 'abrkwe',
+          content: 'laaaa',
           published: true,
         },
       ],
     },
   },
   {
-    name: 'Mahmoud',
-    email: 'mahmoud@prisma.io',
+    name: 'normie',
+    email: 'normie.com',
     posts: {
       create: [
         {
-          title: 'Ask a question about Prisma on GitHub',
-          content: 'https://www.github.com/prisma/prisma/discussions',
+          title: 'imnormie',
+          content: 'normielaa.com',
           published: true,
         },
         {
-          title: 'Prisma on YouTube',
-          content: 'https://pris.ly/youtube',
+          title: 'norm',
+          content: 'lna31',
         },
       ],
     },
@@ -60,7 +60,7 @@ async function main() {
 }
 
 main()
-  .catch((e) => {
+  .catch(e => {
     console.error(e)
     process.exit(1)
   })
