@@ -6,11 +6,7 @@ import Layout from '../components/Layout'
 import Post, { PostProps } from '../components/Post'
 import { useGetPostsQuery } from '../services/post'
 
-type Props = {
-  feed: PostProps[]
-}
-
-const Blog: React.FC<Props> = () => {
+const Blog: React.FC = () => {
   const { data } = useGetPostsQuery()
   console.log(data)
   return (
