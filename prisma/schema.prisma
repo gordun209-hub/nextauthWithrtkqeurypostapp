@@ -12,8 +12,8 @@ model Post {
   title     String
   content   String?
   published Boolean   @default(false)
-  author    User?     @relation(fields: [authorId], references: [id])
-  authorId  Int?
+  author    User      @relation(fields: [authorId], references: [id])
+  authorId  Int
   comments  Comment[]
   Tags      Tag[]     @relation("TagToPost")
   tagId     Int?
@@ -54,7 +54,7 @@ model Session {
 model User {
   id            Int       @id @default(autoincrement())
   name          String?
-  email         String?   @unique
+  email         String    @unique
   emailVerified DateTime? @map("email_verified")
   image         String?
   createdAt     DateTime  @default(now()) @map(name: "created_at")

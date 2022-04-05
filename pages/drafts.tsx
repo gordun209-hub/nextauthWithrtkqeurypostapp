@@ -1,15 +1,14 @@
+import { useSession } from 'next-auth/react'
 import React from 'react'
-import { GetServerSideProps } from 'next'
+
 import Layout from '../components/Layout'
 import Post, { PostProps } from '../components/Post'
-import { useSession, getSession } from 'next-auth/react'
-import prisma from '../lib/prisma'
 
 type Props = {
   drafts: PostProps[]
 }
 
-const Drafts: React.FC<Props> = props => {
+const Drafts: React.FC<Props> = ({ drafts }) => {
   const { data: session } = useSession()
 
   if (!session) {
@@ -26,7 +25,7 @@ const Drafts: React.FC<Props> = props => {
       <div className='page'>
         <h1>My Drafts</h1>
         <main>
-          {props.drafts.map(post => (
+          {drafts.map(post => (
             <div key={post.id} className='post'>
               <Post post={post} />
             </div>
@@ -52,28 +51,3 @@ const Drafts: React.FC<Props> = props => {
 }
 
 export default Drafts
-
-export const getServerSideProps: GetServerSideProps = async ({ req, res }) => {
-  //! This is the only place where we can get the session
-  const session = await getSession({ req })
-  if (!session) {
-    res.statusCode = 403
-    return { props: { drafts: [] } }
-  }
-  //! find drafts of user
-
-  const drafts = await prisma.post.findMany({
-    where: {
-      author: { email: session.user.email },
-      published: false,
-    },
-    include: {
-      author: {
-        select: { name: true },
-      },
-    },
-  })
-  return {
-    props: { drafts },
-  }
-}

@@ -1,30 +1,29 @@
-import React from 'react'
-import Router from 'next/router'
-import ReactMarkdown from 'react-markdown'
 import {
   Box,
   chakra,
   Flex,
-  Link,
   Image,
-  useColorModeValue,
+  Link,
+  useColorModeValue
 } from '@chakra-ui/react'
-import { useSession } from 'next-auth/react'
+// eslint-disable-next-line import/no-named-as-default
+import Router from 'next/router'
+import React from 'react'
+
 export type PostProps = {
   id: number
   title: string
   author: {
     name: string
     email: string
+    image: string
   } | null
   content: string
   published: boolean
 }
 
 const Post: React.FC<{ post: PostProps }> = ({ post }) => {
-  const { data: session, status } = useSession()
-
-  const authorName = post.author ? post.author.name : 'Unknown author'
+  const authorName = post.author ? post?.author?.name : 'Unknown author'
   return (
     <Box
       as='article'
@@ -32,25 +31,26 @@ const Post: React.FC<{ post: PostProps }> = ({ post }) => {
       borderColor='gray.200'
       p={4}
       mb={4}
-      cursor='pointer'>
+      cursor='pointer'
+    >
       <Flex
         h='100%'
         align='center'
         justify='space-between'
         flexDir='column'
-        bg={useColorModeValue('#F9FAFB', 'gray.600')}
-        p={30}
+        p={10}
         borderRadius='md'
         boxShadow='lg'
-        mb={30}>
+      >
         <Box
-          onClick={() => Router.push(`/p/${post.id}`)}
           px={8}
           py={4}
           rounded='lg'
           shadow='lg'
-          bg={useColorModeValue('white', 'gray.800')}
-          maxW='2xl'>
+          maxW='100vw'
+          maxH='100vh'
+          onClick={() => Router.push(`/p/${post.id}`)}
+        >
           <Flex justifyContent='space-between' alignItems='center'>
             <Link
               px={3}
@@ -60,7 +60,8 @@ const Post: React.FC<{ post: PostProps }> = ({ post }) => {
               fontSize='sm'
               fontWeight='700'
               rounded='md'
-              _hover={{ bg: 'gray.500' }}>
+              _hover={{ bg: 'gray.500' }}
+            >
               view post
             </Link>
           </Flex>
@@ -68,36 +69,34 @@ const Post: React.FC<{ post: PostProps }> = ({ post }) => {
           <Box mt={2}>
             <Link
               fontSize='2xl'
-              color={useColorModeValue('gray.700', 'white')}
               fontWeight='700'
               _hover={{
                 color: useColorModeValue('gray.600', 'gray.200'),
-                textDecor: 'underline',
-              }}>
+                textDecor: 'underline'
+              }}
+            >
               {post.title}
             </Link>
-            <chakra.p mt={2} color={useColorModeValue('gray.600', 'gray.300')}>
-              {post.content}
-            </chakra.p>
+            <chakra.p mt={2}>{post.content}</chakra.p>
           </Box>
 
-          <Flex justifyContent='space-between' alignItems='center' mt={4}>
+          <Flex justifyContent='space-between' alignItems='center' mt={10}>
             <Flex alignItems='center'>
               <Image
-                mx={4}
+                mx={6}
                 w={10}
                 h={10}
                 rounded='full'
                 fit='cover'
                 display={{ base: 'none', sm: 'block' }}
-                src={session?.user?.image}
+                src={
+                  post?.author?.image ||
+                  'https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Ftse1.mm.bing.net%2Fth%3Fid%3DOIP.fpaUV35ECaGkz-YNCrBSwQHaHa%26pid%3DApi&f=1'
+                }
                 alt='avatar'
               />
-              <Link
-                color={useColorModeValue('gray.700', 'gray.200')}
-                fontWeight='700'
-                cursor='pointer'>
-                {session?.user?.name}
+              <Link fontWeight='700' cursor='pointer'>
+                {authorName}
               </Link>
             </Flex>
           </Flex>

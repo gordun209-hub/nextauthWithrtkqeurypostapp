@@ -1,127 +1,159 @@
-import React from 'react'
+/* eslint-disable import/no-named-as-default */
+import { Box, Button, chakra, Flex, Link, Stack, Text } from '@chakra-ui/react'
 import { GetServerSideProps } from 'next'
-import ReactMarkdown from 'react-markdown'
-import Layout from '../../components/Layout'
 import Router from 'next/router'
+import { useSession } from 'next-auth/react'
+import React, { SyntheticEvent } from 'react'
+
+import Layout from '../../components/Layout'
 import { PostProps } from '../../components/Post'
 import prisma from '../../lib/prisma'
-import { useSession } from 'next-auth/react'
 import {
-  Box,
-  Button,
-  chakra,
-  Flex,
-  Link,
-  Stack,
-  Text,
-  useColorModeValue,
-} from '@chakra-ui/react'
+  useDeletePostMutation,
+  useEditPostMutation,
+  usePublishPostMutation
+} from '../../services/post'
 
-export const getServerSideProps: GetServerSideProps = async ({ params }) => {
+//TODO bunu oren
+export const getServerSideProps: GetServerSideProps<any> = async ({
+  params
+}) => {
   const post = await prisma.post.findUnique({
     where: {
-      id: Number(params?.id) || -1,
+      id: Number(params?.id) || -1
     },
     include: {
       author: {
-        select: { name: true, email: true },
-      },
-    },
+        select: { name: true, email: true, id: true }
+      }
+    }
   })
   return {
-    props: post,
+    props: post
   }
 }
 
-async function publishPost(id: number): Promise<void> {
-  await fetch(`http://localhost:3000/api/publish/${id}`, {
-    method: 'PUT',
-  })
-  await Router.push('/')
-}
+const Post: React.FC<PostProps> = ({
+  content,
+  title,
+  author,
+  id,
+  published
+}) => {
+  const [publishPosts] = usePublishPostMutation()
+  const [deletePosts] = useDeletePostMutation()
+  const [editPost] = useEditPostMutation()
+  async function publishPost(id: number): Promise<void> {
+    await publishPosts(id)
+    await Router.push('/')
+  }
 
-async function deletePost(id: number): Promise<void> {
-  await fetch(`http://localhost:3000/api/post/${id}`, {
-    method: 'DELETE',
-  })
-  await Router.push('/')
-}
-
-const Post: React.FC<PostProps> = props => {
+  async function deletePost(id: number): Promise<void> {
+    await deletePosts(id)
+    await Router.push('/')
+  }
+  const [editing, setEditing] = React.useState(true)
+  const [editContent, setEditContent] = React.useState(content)
+  const [editTitle, setEditTitle] = React.useState(title)
   const { data: session, status } = useSession()
   if (status === 'loading') {
     return <div>Authenticating ...</div>
   }
   const userHasValidSession = Boolean(session)
-  const postBelongsToUser = session?.user?.email === props.author?.email
-  let title = props.title
-  if (!props.published) {
-    title = `${title} (Draft)`
-  }
+  const postBelongsToUser = session?.user?.email === author?.email
 
+  async function handleSubmit(e: SyntheticEvent) {
+    e.preventDefault()
+    await editPost({
+      id: id,
+      title: title,
+      content: content
+    })
+    setEditing(false)
+  }
   return (
     <Layout>
-      <Box
-        as='article'
-        borderStyle='solid'
-        borderColor='gray.200'
-        p={4}
-        mb={4}
-        cursor='pointer'>
-        <Flex
-          h='100%'
-          align='center'
-          justify='space-between'
-          flexDir='column'
-          bg={useColorModeValue('#F9FAFB', 'gray.600')}
-          p={30}
-          borderRadius='md'
-          boxShadow='lg'
-          mb={30}>
-          <Box
-            px={8}
-            py={4}
-            rounded='lg'
-            shadow='lg'
-            bg={useColorModeValue('white', 'gray.800')}
-            maxW='2xl'>
-            <Flex justifyContent='space-between' alignItems='center'></Flex>
+      {editing ? (
+        <form>
+          <h1>New Draft</h1>
+          <input
+            autoFocus
+            placeholder='Title'
+            type='text'
+            value={editTitle}
+            onChange={e => setEditTitle(e.target.value)}
+          />
+          <textarea
+            cols={50}
+            placeholder='Content'
+            rows={8}
+            value={editContent}
+            onChange={e => setEditContent(e.target.value)}
+          />
+          <input
+            disabled={!editContent || !editTitle}
+            type='button'
+            value='edit'
+            onClick={e => handleSubmit(e)}
+          />
+          <a className='back' href='#' onClick={() => Router.push('/')}>
+            or Cancel
+          </a>
+        </form>
+      ) : (
+        <Box
+          as='article'
+          borderStyle='solid'
+          borderColor='gray.200'
+          p={4}
+          mb={4}
+          cursor='pointer'
+        >
+          <Flex
+            h='100%'
+            align='center'
+            justify='space-between'
+            flexDir='column'
+            p={15}
+            borderRadius='md'
+            boxShadow='lg'
+            mb={30}
+          >
+            <Box px={8} py={4} rounded='lg' shadow='lg' maxW='2xl'>
+              <Box mt={2}>
+                <Link
+                  fontSize='2xl '
+                  fontWeight='700'
+                  _hover={{
+                    textDecor: 'underline'
+                  }}
+                >
+                  {title}
+                </Link>
+                <chakra.p mt={2}>{content}</chakra.p>
+              </Box>
 
-            <Box mt={2}>
-              <Link
-                fontSize='2xl'
-                color={useColorModeValue('gray.700', 'white')}
-                fontWeight='700'
-                _hover={{
-                  color: useColorModeValue('gray.600', 'gray.200'),
-                  textDecor: 'underline',
-                }}>
-                {title}
-              </Link>
-              <chakra.p
-                mt={2}
-                color={useColorModeValue('gray.600', 'gray.300')}>
-                {props.content}
-              </chakra.p>
+              <Flex justifyContent='space-between' alignItems='center' mt={4}>
+                <Text fontSize='sm' color='gray.500'>
+                  {author?.name}
+                </Text>
+                <Text fontSize='sm' color='gray.500'></Text>
+              </Flex>
+              <Stack isInline mt={4} spacing={4} align='center'>
+                {!published && userHasValidSession && postBelongsToUser && (
+                  <Button onClick={() => publishPost(id)}>Publish</Button>
+                )}
+                {userHasValidSession && postBelongsToUser && (
+                  <Button onClick={() => deletePost(id)}>Delete</Button>
+                )}
+                {userHasValidSession && postBelongsToUser && (
+                  <Button onClick={() => console.log(id)}>Edit</Button>
+                )}
+              </Stack>
             </Box>
-
-            <Flex justifyContent='space-between' alignItems='center' mt={4}>
-              <Text fontSize='sm' color='gray.500'>
-                {props.author?.name}
-              </Text>
-              <Text fontSize='sm' color='gray.500'></Text>
-            </Flex>
-            <Stack isInline mt={4} spacing={4} align='center'>
-              {!props.published && userHasValidSession && postBelongsToUser && (
-                <Button onClick={() => publishPost(props.id)}>Publish</Button>
-              )}
-              {userHasValidSession && postBelongsToUser && (
-                <Button onClick={() => deletePost(props.id)}>Delete</Button>
-              )}
-            </Stack>
-          </Box>
-        </Flex>
-      </Box>
+          </Flex>
+        </Box>
+      )}
     </Layout>
   )
 }

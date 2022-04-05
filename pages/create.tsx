@@ -1,7 +1,10 @@
-import React, { useState } from 'react'
-import Layout from '../components/Layout'
+// eslint-disable-next-line import/no-named-as-default
 import Router from 'next/router'
+import React, { useState } from 'react'
+
+import Layout from '../components/Layout'
 import { useAddPostMutation } from '../services/post'
+
 const Draft: React.FC = () => {
   const [title, setTitle] = useState('')
   const [content, setContent] = useState('')
@@ -20,17 +23,17 @@ const Draft: React.FC = () => {
           <h1>New Draft</h1>
           <input
             autoFocus
-            onChange={e => setTitle(e.target.value)}
             placeholder='Title'
             type='text'
             value={title}
+            onChange={e => setTitle(e.target.value)}
           />
           <textarea
             cols={50}
-            onChange={e => setContent(e.target.value)}
             placeholder='Content'
             rows={8}
             value={content}
+            onChange={e => setContent(e.target.value)}
           />
           <input disabled={!content || !title} type='submit' value='Create' />
           <a className='back' href='#' onClick={() => Router.push('/')}>
