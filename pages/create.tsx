@@ -13,7 +13,6 @@ const Draft: React.FC = () => {
   const submitData = async (e: React.SyntheticEvent) => {
     e.preventDefault()
     await addPost({ title, content })
-    await Router.push('/drafts')
   }
 
   return (

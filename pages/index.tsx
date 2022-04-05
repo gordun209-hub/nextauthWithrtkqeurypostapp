@@ -4,32 +4,15 @@ import React from 'react'
 
 import Layout from '../components/Layout'
 import Post, { PostProps } from '../components/Post'
-import prisma from '../lib/prisma'
-
-export const getStaticProps: GetStaticProps = async () => {
-  const feed = await prisma.post.findMany({
-    where: {
-      published: true
-    },
-    include: {
-      author: {
-        select: {
-          name: true,
-          email: true
-        }
-      }
-    }
-  })
-  return {
-    props: { feed }
-  }
-}
+import { useGetPostsQuery } from '../services/post'
 
 type Props = {
   feed: PostProps[]
 }
 
-const Blog: React.FC<Props> = ({ feed }) => {
+const Blog: React.FC<Props> = () => {
+  const { data } = useGetPostsQuery()
+  console.log(data)
   return (
     <>
       <Layout>
@@ -45,7 +28,7 @@ const Blog: React.FC<Props> = ({ feed }) => {
               borderBottomColor='gray.200'
               borderBottomStyle='solid'
             >
-              {feed.map(post => (
+              {data?.map(post => (
                 <Post key={post.id} post={post} />
               ))}
             </SimpleGrid>

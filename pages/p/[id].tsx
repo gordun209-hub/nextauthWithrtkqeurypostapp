@@ -52,7 +52,7 @@ const Post: React.FC<PostProps> = ({
     await deletePosts(id)
     await Router.push('/')
   }
-  const [editing, setEditing] = React.useState(true)
+  const [editing, setEditing] = React.useState(false)
   const [editContent, setEditContent] = React.useState(content)
   const [editTitle, setEditTitle] = React.useState(title)
   const { data: session, status } = useSession()
@@ -64,12 +64,14 @@ const Post: React.FC<PostProps> = ({
 
   async function handleSubmit(e: SyntheticEvent) {
     e.preventDefault()
+
     await editPost({
-      id: id,
-      title: title,
-      content: content
+      id,
+      title: editTitle,
+      content: editTitle
     })
     setEditing(false)
+    Router.push('/drafts')
   }
   return (
     <Layout>
@@ -88,7 +90,10 @@ const Post: React.FC<PostProps> = ({
             placeholder='Content'
             rows={8}
             value={editContent}
-            onChange={e => setEditContent(e.target.value)}
+            onChange={e => {
+              setEditContent(e.target.value)
+              console.log(e.target.value)
+            }}
           />
           <input
             disabled={!editContent || !editTitle}
@@ -99,6 +104,34 @@ const Post: React.FC<PostProps> = ({
           <a className='back' href='#' onClick={() => Router.push('/')}>
             or Cancel
           </a>
+          <style jsx>{`
+            .page {
+              background: white;
+              padding: 3rem;
+              display: flex;
+              justify-content: center;
+              align-items: center;
+            }
+
+            input[type='text'],
+            textarea {
+              width: 100%;
+              padding: 0.5rem;
+              margin: 0.5rem 0;
+              border-radius: 0.25rem;
+              border: 0.125rem solid rgba(0, 0, 0, 0.2);
+            }
+
+            input[type='submit'] {
+              background: #ececec;
+              border: 0;
+              padding: 1rem 2rem;
+            }
+
+            .back {
+              margin-left: 1rem;
+            }
+          `}</style>
         </form>
       ) : (
         <Box
@@ -147,7 +180,7 @@ const Post: React.FC<PostProps> = ({
                   <Button onClick={() => deletePost(id)}>Delete</Button>
                 )}
                 {userHasValidSession && postBelongsToUser && (
-                  <Button onClick={() => console.log(id)}>Edit</Button>
+                  <Button onClick={() => setEditing(true)}>Edit</Button>
                 )}
               </Stack>
             </Box>

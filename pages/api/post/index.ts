@@ -10,22 +10,39 @@ export default async function handle(
   req: NextApiRequest,
   res: NextApiResponse
 ) {
-  const { title, content } = req.body
+  if (req.method === 'POST') {
+    const { title, content } = req.body
 
-  const session = await getSession({ req })
-  if (session?.user?.email) {
-    const result = await prisma.post.create({
-      data: {
-        title: title,
-        content: content,
+    const session = await getSession({ req })
+    if (session?.user?.email) {
+      const result = await prisma.post.create({
+        data: {
+          title: title,
+          content: content,
+          author: {
+            connect: {
+              email: session?.user?.email
+            }
+          }
+        }
+      })
+      res.json(result)
+    }
+  } else if (req.method === 'GET') {
+    const posts = await prisma.post.findMany({
+      where: {
+        published: true
+      },
+      include: {
         author: {
-          connect: {
-            email: session?.user?.email
+          select: {
+            name: true,
+            email: true
           }
         }
       }
     })
-    res.json(result)
+    res.json(posts)
   } else {
     res.status(401).send({ message: 'Unauthorized' })
   }
