@@ -14,7 +14,7 @@ export type PostProps = {
   id: number
   title: string
   author: {
-    name: string
+    name?: string
     email: string
     image: string
   } | null
@@ -33,6 +33,7 @@ const Post: React.FC<{ post: PostProps }> = ({ post }) => {
       mb={4}
       cursor='pointer'
     >
+      <div>laa</div>
       <Flex
         h='100%'
         align='center'

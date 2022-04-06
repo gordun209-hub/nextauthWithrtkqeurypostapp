@@ -9,6 +9,7 @@ type Props = {
 const Layout: React.FC<Props> = ({ children }) => (
   <div>
     <Header />
+    amq
     <div className='layout'>{children}</div>
     <style jsx global>{`
       html {
